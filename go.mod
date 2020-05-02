@@ -1,4 +1,4 @@
-module github.com/cloudfoundry/nodejs-buildpack
+module github.com/digantaTheProgrammer/NodeTor
 
 require (
 	github.com/Dynatrace/libbuildpack-dynatrace v1.2.2

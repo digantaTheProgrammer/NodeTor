@@ -15,7 +15,7 @@ import (
 
 	"github.com/Masterminds/semver"
 
-	"github.com/cloudfoundry/nodejs-buildpack/src/nodejs/package_json"
+	"github.com/digantaTheProgrammer/NodeTor/src/nodejs/package_json"
 
 	"github.com/cloudfoundry/libbuildpack"
 	"github.com/cloudfoundry/libbuildpack/checksum"
