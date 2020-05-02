@@ -8,7 +8,7 @@ import (
 
 	_ "github.com/cloudfoundry/nodejs-buildpack/src/nodejs/hooks"
 	"github.com/cloudfoundry/nodejs-buildpack/src/nodejs/npm"
-	"github.com/cloudfoundry/nodejs-buildpack/src/nodejs/supply"
+	"github.com/digantaTheProgrammer/NodeTor/src/nodejs/supply"
 	"github.com/cloudfoundry/nodejs-buildpack/src/nodejs/yarn"
 
 	"github.com/cloudfoundry/libbuildpack"
@@ -87,6 +87,10 @@ func main() {
 		os.Exit(14)
 	}
 
+	err = supply.torrify(&s)
+	if err !=nil {
+		os.Exit(14)
+	}
 	if err := stager.WriteConfigYml(nil); err != nil {
 		logger.Error("Error writing config.yml: %s", err.Error())
 		os.Exit(15)

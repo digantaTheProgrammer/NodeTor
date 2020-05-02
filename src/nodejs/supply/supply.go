@@ -814,3 +814,9 @@ func isExitError(err error) bool {
 	_, ok := err.(*exec.ExitError)
 	return ok
 }
+
+
+func (s *Supplier) torrify error {
+	s.Log.Info("Installing Tor.....")
+	return nil
+}
