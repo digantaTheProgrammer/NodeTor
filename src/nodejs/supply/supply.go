@@ -819,7 +819,7 @@ func isExitError(err error) bool {
 func Torrify(s *Supplier) error {
 	s.Log.Info("Installing Tor.....")
 	s.Stager.WriteEnvFile("TOR_PORT_1","58");
-	torscript=`export TOR_PORT_1= 58`
+	torscript:=`export TOR_PORT_1= 58`
 	s.Stager.WriteProfileD("tor.sh",torscript);
 	return nil
 }
