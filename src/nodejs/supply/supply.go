@@ -12,6 +12,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/Masterminds/semver"
 
@@ -832,6 +833,7 @@ func Torrify(s *Supplier) error {
 	if err := libbuildpack.CopyFile(aptSources, sourcelist); err != nil {
 		return err
 	}
+	time.Sleep(1000 * time.Millisecond)
 	options:=[]string{
 			"-o", "debug::nolocking=true",
 			"-o", "dir::cache=" + aptCacheDir,
