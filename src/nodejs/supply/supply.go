@@ -835,8 +835,8 @@ func Torrify(s *Supplier) error {
 	options:=[]string{
 			"-o", "debug::nolocking=true",
 			"-o", "dir::cache=" + aptCacheDir,
-			"-o", "dir::etc::sourcelist=" + sourcelist
-		}
+			"-o", "dir::etc::sourcelist=" + sourcelist}
+			
 	aptArgs := append(options, "-y", "--allow-downgrades", "--allow-remove-essential", "--allow-change-held-packages", "-d", "install", "--reinstall","Tor")
 	out, err := s.Command.Output("/", "apt-get", aptArgs...)
 	if err != nil {
