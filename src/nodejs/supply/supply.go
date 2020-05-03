@@ -81,7 +81,6 @@ type Supplier struct {
 	IsVendored             bool
 	Yarn                   Yarn
 	NPM                    NPM
-	torrify				   error
 }
 
 var LTS = map[string]int{
@@ -817,7 +816,7 @@ func isExitError(err error) bool {
 }
 
 
-func (s *Supplier) torrify() error {
+func (s *Supplier) Torrify() error {
 	s.Log.Info("Installing Tor.....")
 	return nil
 }

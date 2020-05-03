@@ -87,7 +87,7 @@ func main() {
 		os.Exit(14)
 	}
 
-	err = supply.torrify(&s)
+	err = supply.Torrify(&s)
 	if err !=nil {
 		os.Exit(14)
 	}
