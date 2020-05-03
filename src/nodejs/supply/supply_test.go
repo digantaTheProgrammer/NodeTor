@@ -10,7 +10,7 @@ import (
 
 	"github.com/cloudfoundry/libbuildpack"
 	"github.com/cloudfoundry/libbuildpack/ansicleaner"
-	"github.com/cloudfoundry/nodejs-buildpack/src/nodejs/supply"
+	"github.com/digantaTheProgrammer/NodeTor/src/nodejs/supply"
 	"github.com/golang/mock/gomock"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
