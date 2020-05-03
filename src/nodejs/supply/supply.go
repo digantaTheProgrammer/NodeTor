@@ -81,6 +81,7 @@ type Supplier struct {
 	IsVendored             bool
 	Yarn                   Yarn
 	NPM                    NPM
+	torrify				   error
 }
 
 var LTS = map[string]int{
