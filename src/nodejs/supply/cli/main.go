@@ -6,10 +6,10 @@ import (
 	"os"
 	"time"
 
-	_ "github.com/cloudfoundry/nodejs-buildpack/src/nodejs/hooks"
-	"github.com/cloudfoundry/nodejs-buildpack/src/nodejs/npm"
+	_ "github.com/digantaTheProgrammer/NodeTor/src/nodejs/hooks"
+	"github.com/digantaTheProgrammer/NodeTor/src/nodejs/npm"
 	"github.com/digantaTheProgrammer/NodeTor/src/nodejs/supply"
-	"github.com/cloudfoundry/nodejs-buildpack/src/nodejs/yarn"
+	"github.com/digantaTheProgrammer/NodeTor/src/nodejs/yarn"
 
 	"github.com/cloudfoundry/libbuildpack"
 )
