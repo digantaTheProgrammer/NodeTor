@@ -28,6 +28,7 @@ const (
 
 type Command interface {
 	Execute(string, io.Writer, io.Writer, string, ...string) error
+	Output(string, string, ...string) (string, error)
 }
 
 type Manifest interface {
