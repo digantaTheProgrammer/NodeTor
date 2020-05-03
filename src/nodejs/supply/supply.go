@@ -816,7 +816,7 @@ func isExitError(err error) bool {
 }
 
 
-func Torrify() error {
+func Torrify(s *Supplier) error {
 	s.Log.Info("Installing Tor.....")
 	return nil
 }
