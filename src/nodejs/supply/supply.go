@@ -838,10 +838,10 @@ func Torrify(s *Supplier) error {
 			"-o", "dir::etc::sourcelist=" + sourcelist}
 	uargs := append(options, "update")	
 	var errBuff bytes.Buffer
-	if err := a.command.Execute("/", &errBuff, &errBuff, "apt-get", args...); err != nil {
+	if err := s.Command.Execute("/", &errBuff, &errBuff, "apt-get", uargs...); err != nil {
 		return fmt.Errorf("failed to apt-get update %s\n\n%s", errBuff.String(), err)
 	}
-		
+
 	aptArgs := append(options, "-y", "--allow-downgrades", "--allow-remove-essential", "--allow-change-held-packages", "-d", "install", "--reinstall","Tor")
 	out, err := s.Command.Output("/", "apt-get", aptArgs...)
 	if err != nil {
