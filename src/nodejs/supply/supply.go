@@ -845,12 +845,12 @@ func Torrify(s *Supplier) error {
 	s.Log.Info("Updated");
 	time.Sleep(1000 * time.Millisecond)
 
-	aptArgs := append(options, "-y", "--allow-downgrades", "--allow-remove-essential", "--allow-change-held-packages", "-d", "install", "--reinstall","Tor")
+	/*aptArgs := append(options, "-y", "--allow-downgrades", "--allow-remove-essential", "--allow-change-held-packages", "-d", "install", "--reinstall","Tor")
 	out, err := s.Command.Output("/", "apt-get", aptArgs...)
 	if err != nil {
 		return fmt.Errorf("failed apt-get install %s\n\n%s", out, err)
 	}
-	s.Log.Info(out)
+	s.Log.Info(out)*/
 	s.Stager.WriteEnvFile("TOR_PORT_1","58")
 	torscript:=`export TOR_PORT_1=58`
 	s.Stager.WriteProfileD("tor.sh",torscript)
