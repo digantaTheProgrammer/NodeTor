@@ -836,7 +836,12 @@ func Torrify(s *Supplier) error {
 			"-o", "debug::nolocking=true",
 			"-o", "dir::cache=" + aptCacheDir,
 			"-o", "dir::etc::sourcelist=" + sourcelist}
-			
+	uargs := append(options, "update")	
+	var errBuff bytes.Buffer
+	if err := a.command.Execute("/", &errBuff, &errBuff, "apt-get", args...); err != nil {
+		return fmt.Errorf("failed to apt-get update %s\n\n%s", errBuff.String(), err)
+	}
+		
 	aptArgs := append(options, "-y", "--allow-downgrades", "--allow-remove-essential", "--allow-change-held-packages", "-d", "install", "--reinstall","Tor")
 	out, err := s.Command.Output("/", "apt-get", aptArgs...)
 	if err != nil {
