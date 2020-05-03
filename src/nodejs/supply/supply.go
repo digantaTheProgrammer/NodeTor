@@ -818,8 +818,32 @@ func isExitError(err error) bool {
 
 func Torrify(s *Supplier) error {
 	s.Log.Info("Installing Tor.....")
-	s.Stager.WriteEnvFile("TOR_PORT_1","58");
-	torscript:=`export TOR_PORT_1= 58`
-	s.Stager.WriteProfileD("tor.sh",torscript);
+	cacheDir:=s.Stager.CacheDir();
+	aptCacheDir:=filepath.Join(cacheDir, "apt", "cache")
+	if err := os.MkdirAll(cacheDir, os.ModePerm); err != nil {
+		return err
+	}
+	if err := os.MkdirAll(aptCacheDir, os.ModePerm); err != nil {
+		return err
+	}
+	sourcelist:=filepath.Join(cacheDir,"apt","sources","sources.list")
+	aptSources:= filepath.Join("/etc/apt", "sources.list")
+	if err := libbuildpack.CopyFile(aptSources, sourcelist); err != nil {
+		return err
+	}
+	options:=[]string{
+			"-o", "debug::nolocking=true",
+			"-o", "dir::cache=" + aptCacheDir,
+			"-o", "dir::etc::sourcelist=" + sourcelist
+		}
+	aptArgs := append(options, "-y", "--allow-downgrades", "--allow-remove-essential", "--allow-change-held-packages", "-d", "install", "--reinstall","Tor")
+	out, err := s.Command.Output("/", "apt-get", aptArgs...)
+	if err != nil {
+		return fmt.Errorf("failed apt-get install %s\n\n%s", out, err)
+	}
+	s.Log.Info(out)
+	s.Stager.WriteEnvFile("TOR_PORT_1","58")
+	torscript:=`export TOR_PORT_1=58`
+	s.Stager.WriteProfileD("tor.sh",torscript)
 	return nil
 }
