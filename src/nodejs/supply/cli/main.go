@@ -89,7 +89,7 @@ func main() {
 	logger.Info("Cpart!");
 	err = supply.Torrify(&s)
 	if err !=nil {
-		logger.Info(err.msg);
+		logger.Info(err.Error());
 		//os.Exit(14)
 	}
 	if err := stager.WriteConfigYml(nil); err != nil {
