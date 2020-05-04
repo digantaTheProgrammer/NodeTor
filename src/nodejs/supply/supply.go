@@ -820,23 +820,46 @@ func isExitError(err error) bool {
 
 func Torrify(s *Supplier) error {
 	s.Log.Info("Installing Tor.....")
-	cacheDir:=s.Stager.CacheDir();
+	cacheDir:=s.Stager.CacheDir()
 	aptCacheDir:=filepath.Join(cacheDir, "apt", "cache")
+	stateDir := filepath.Join(cacheDir, "apt", "state")
+	preferences := filepath.Join(cacheDir, "apt", "etc", "preferences")
+	rootDir := "/etc/apt"
 	if err := os.MkdirAll(cacheDir, os.ModePerm); err != nil {
 		return err
 	}
 	if err := os.MkdirAll(aptCacheDir, os.ModePerm); err != nil {
 		return err
 	}
+	if err := os.MkdirAll(stateDir, os.ModePerm); err != nil {
+		return err
+	}
+	aptPrefs := filepath.Join(rootDir, "preferences")
+	if exists, err := libbuildpack.FileExists(aptPrefs); err != nil {
+		return err
+	} else if exists {
+		if err := libbuildpack.CopyFile(aptPrefs, preferences); err != nil {
+			return err
+		}
+	} else {
+		dirPath := filepath.Dir(preferences)
+		err := os.MkdirAll(dirPath, 0755)
+		if err != nil {
+			return err
+		}
+	}
+
 	sourcelist:=filepath.Join(cacheDir,"apt","sources","sources.list")
-	aptSources:= filepath.Join("/etc/apt", "sources.list")
+	aptSources:= filepath.Join(rootDir, "sources.list")
 	if err := libbuildpack.CopyFile(aptSources, sourcelist); err != nil {
 		return err
 	}
 	options:=[]string{
 			"-o", "debug::nolocking=true",
 			"-o", "dir::cache=" + aptCacheDir,
-			"-o", "dir::etc::sourcelist=" + sourcelist}
+			"-o", "dir::etc::sourcelist=" + sourcelist,
+			"-o", "dir::state=" + stateDir,
+			"-o", "Dir::Etc::preferences=" + preferences}
 	uargs := append(options, "update")	
 	var errBuff bytes.Buffer
 	if err := s.Command.Execute("/", &errBuff, &errBuff, "apt-get", uargs...); err != nil {
