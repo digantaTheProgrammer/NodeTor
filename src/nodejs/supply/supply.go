@@ -864,8 +864,8 @@ func Torrify(s *Supplier) error {
 			"-o", "dir::etc::sourcelist=" + sourcelist,
 			"-o", "dir::state=" + stateDir,
 			"-o", "Dir::Etc::preferences=" + preferences}
-	uargs := append(options, "update")	
-	var errBuff bytes.Buffer
+	//uargs := append(options, "update")	
+	//var errBuff bytes.Buffer
 	/*if err := s.Command.Execute("/", &errBuff, &errBuff, "apt-get", uargs...); err != nil {
 		return fmt.Errorf("failed to apt-get update %s\n\n%s", errBuff.String(), err)
 	}*/
