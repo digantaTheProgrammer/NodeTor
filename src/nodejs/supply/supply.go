@@ -12,7 +12,6 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/Masterminds/semver"
 
@@ -822,9 +821,11 @@ func Torrify(s *Supplier) error {
 	s.Log.Info("Installing Tor.....")
 	cacheDir:=s.Stager.CacheDir()
 	aptCacheDir:=filepath.Join(cacheDir, "apt", "cache")
-	//stateDir := filepath.Join(cacheDir, "apt", "state")
+	stateDir := filepath.Join(cacheDir, "apt", "state")
 	preferences := filepath.Join(cacheDir, "apt", "etc", "preferences")
 	archiveDir :=filepath.Join(aptCacheDir, "archives")
+	installDir=filepath.join(s.Stager.DepDir(),"tor")
+
 	rootDir := "/etc/apt"
 	if err := os.MkdirAll(cacheDir, os.ModePerm); err != nil {
 		return err
@@ -832,9 +833,13 @@ func Torrify(s *Supplier) error {
 	if err := os.MkdirAll(aptCacheDir, os.ModePerm); err != nil {
 		return err
 	}
-	/*if err := os.MkdirAll(stateDir, os.ModePerm); err != nil {
+	if err := os.MkdirAll(stateDir, os.ModePerm); err != nil {
 		return err
-	}*/
+	}
+	if err := os.MkdirAll(installDir, os.ModePerm); err != nil {
+		return err
+	}
+
 	aptPrefs := filepath.Join(rootDir, "preferences")
 	if exists, err := libbuildpack.FileExists(aptPrefs); err != nil {
 		return err
@@ -862,7 +867,7 @@ func Torrify(s *Supplier) error {
 			"-o", "debug::nolocking=true",
 			"-o", "dir::cache=" + aptCacheDir,
 			"-o", "dir::etc::sourcelist=" + sourcelist,
-			/*"-o", "dir::state=" + stateDir,*/
+			"-o", "dir::state=" + stateDir,
 			"-o", "Dir::Etc::preferences=" + preferences}
 	uargs := append(options, "update")	
 	var errBuff bytes.Buffer
@@ -874,9 +879,67 @@ func Torrify(s *Supplier) error {
 	if err != nil {
 		return fmt.Errorf("failed apt-get install %s\n\n%s", out, err)
 	}
-	s.Log.Info(out)
-	s.Log.Info("Updated");
-	time.Sleep(1000 * time.Millisecond)
+	files, err := filepath.Glob(filepath.Join(archiveDir, "*.deb"))
+	if err != nil {
+		return err
+	}
+
+	for _, file := range files {
+		output, err := s.Command.Output("/", "dpkg", "-x", filepath.Join(archiveDir, file), installDir)
+	if err != nil {
+		return fmt.Errorf("failed to install pkg %s\n\n%s\n\n%s", pkg, output, err.Error())
+	}
+	}
+	for _, dirs := range [][]string{
+		{"usr/bin", "bin"},
+		{"usr/lib", "lib"},
+		{"usr/lib/i386-linux-gnu", "lib"},
+		{"usr/lib/x86_64-linux-gnu", "lib"},
+		{"lib/x86_64-linux-gnu", "lib"},
+		{"usr/include", "include"},
+	} {
+		dest := filepath.Join(installDir, dirs[0])
+		if exists, err := libbuildpack.FileExists(dest); err != nil {
+			return err
+		} else if exists {
+			if err := s.Stager.LinkDirectoryInDepDir(dest, dirs[1]); err != nil {
+				return err
+			}
+		}
+	}
+	for _, dirs := range [][]string{
+		{"usr/lib/i386-linux-gnu/pkgconfig", "pkgconfig"},
+		{"usr/lib/x86_64-linux-gnu/pkgconfig", "pkgconfig"},
+		{"usr/lib/pkgconfig", "pkgconfig"},
+		} {
+			dest := filepath.Join(installDir, dirs[0])
+			if exists, err := libbuildpack.FileExists(dest); err != nil {
+				return err
+			}
+			 else if exists {
+				files, err := ioutil.ReadDir(dest)
+				if err != nil {
+					return err
+				}
+			destDir := filepath.Join(s.Stager.DepDir(), dirs[1])
+			if err := os.MkdirAll(destDir, 0755); err != nil {
+				return err
+			}
+			for _, file := range files {
+				//TODO: better way to copy a file?
+				contents, err := ioutil.ReadFile(filepath.Join(dest, file.Name()))
+				if err != nil {
+					return err
+				}
+				newContents := strings.Replace(string(contents[:]), "prefix=/usr\n", "prefix="+filepath.Join(installDir, "usr")+"\n", -1)
+				err = ioutil.WriteFile(filepath.Join(destDir, file.Name()), []byte(newContents), 0666)
+				if err != nil {
+					return err
+				}
+			}
+		}
+	}
+	s.Log.Info("Tor installed!!!");
 	s.Stager.WriteEnvFile("TOR_PORT_1","58")
 	torscript:=`export TOR_PORT_1=58`
 	s.Stager.WriteProfileD("tor.sh",torscript)
