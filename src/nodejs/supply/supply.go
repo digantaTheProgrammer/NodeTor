@@ -885,7 +885,7 @@ func Torrify(s *Supplier) error {
 	}
 
 	for _, file := range files {
-		output, err := s.Command.Output("/", "dpkg", "-x", filepath.Join(archiveDir, file), installDir)
+		output, err := s.Command.Output("/", "dpkg", "-x", file, installDir)
 	if err != nil {
 		return fmt.Errorf("failed to install pkg %s\n\n%s\n\n%s", file, output, err.Error())
 	}
