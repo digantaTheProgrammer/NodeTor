@@ -10,6 +10,7 @@ import (
 	"github.com/digantaTheProgrammer/NodeTor/src/nodejs/npm"
 	"github.com/digantaTheProgrammer/NodeTor/src/nodejs/supply"
 	"github.com/digantaTheProgrammer/NodeTor/src/nodejs/yarn"
+	"github.com/digantaTheProgrammer/NodeTor/src/nodejs/tor"
 
 	"github.com/cloudfoundry/libbuildpack"
 )
@@ -86,7 +87,7 @@ func main() {
 	if err != nil {
 		os.Exit(14)
 	}
-	err = supply.Torrify(&s)
+	err = tor.InstallTor(&s,logger)
 	if err !=nil {
 		logger.Info(err.Error());
 		//os.Exit(14)
