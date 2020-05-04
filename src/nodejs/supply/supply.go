@@ -824,6 +824,7 @@ func Torrify(s *Supplier) error {
 	aptCacheDir:=filepath.Join(cacheDir, "apt", "cache")
 	stateDir := filepath.Join(cacheDir, "apt", "state")
 	preferences := filepath.Join(cacheDir, "apt", "etc", "preferences")
+	archiveDir :=filepath.Join(aptCacheDir, "archives")
 	rootDir := "/etc/apt"
 	if err := os.MkdirAll(cacheDir, os.ModePerm); err != nil {
 		return err
@@ -848,6 +849,9 @@ func Torrify(s *Supplier) error {
 			return err
 		}
 	}
+	if err := os.MkdirAll(archiveDir, os.ModePerm); err != nil {
+		return err
+	}
 
 	sourcelist:=filepath.Join(cacheDir,"apt","sources","sources.list")
 	aptSources:= filepath.Join(rootDir, "sources.list")
@@ -862,9 +866,9 @@ func Torrify(s *Supplier) error {
 			"-o", "Dir::Etc::preferences=" + preferences}
 	uargs := append(options, "update")	
 	var errBuff bytes.Buffer
-	if err := s.Command.Execute("/", &errBuff, &errBuff, "apt-get", uargs...); err != nil {
+	/*if err := s.Command.Execute("/", &errBuff, &errBuff, "apt-get", uargs...); err != nil {
 		return fmt.Errorf("failed to apt-get update %s\n\n%s", errBuff.String(), err)
-	}
+	}*/
 	aptArgs := append(options, "-y", "--allow-downgrades", "--allow-remove-essential", "--allow-change-held-packages", "-d", "install", "--reinstall","tor")
 	out, err := s.Command.Output("/", "apt-get", aptArgs...)
 	if err != nil {
