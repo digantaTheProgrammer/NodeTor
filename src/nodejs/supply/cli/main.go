@@ -86,7 +86,6 @@ func main() {
 	if err != nil {
 		os.Exit(14)
 	}
-	logger.Info("Cpart!");
 	err = supply.Torrify(&s)
 	if err !=nil {
 		logger.Info(err.Error());
