@@ -824,7 +824,7 @@ func Torrify(s *Supplier) error {
 	stateDir := filepath.Join(cacheDir, "apt", "state")
 	preferences := filepath.Join(cacheDir, "apt", "etc", "preferences")
 	archiveDir :=filepath.Join(aptCacheDir, "archives")
-	installDir=filepath.join(s.Stager.DepDir(),"tor")
+	installDir := filepath.Join(s.Stager.DepDir(),"tor")
 
 	rootDir := "/etc/apt"
 	if err := os.MkdirAll(cacheDir, os.ModePerm); err != nil {
@@ -887,7 +887,7 @@ func Torrify(s *Supplier) error {
 	for _, file := range files {
 		output, err := s.Command.Output("/", "dpkg", "-x", filepath.Join(archiveDir, file), installDir)
 	if err != nil {
-		return fmt.Errorf("failed to install pkg %s\n\n%s\n\n%s", pkg, output, err.Error())
+		return fmt.Errorf("failed to install pkg %s\n\n%s\n\n%s", file, output, err.Error())
 	}
 	}
 	for _, dirs := range [][]string{
@@ -915,8 +915,7 @@ func Torrify(s *Supplier) error {
 			dest := filepath.Join(installDir, dirs[0])
 			if exists, err := libbuildpack.FileExists(dest); err != nil {
 				return err
-			}
-			 else if exists {
+			}else if exists {
 				files, err := ioutil.ReadDir(dest)
 				if err != nil {
 					return err
