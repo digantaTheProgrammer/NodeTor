@@ -85,22 +85,22 @@ func AptSetup(s *Supplier,installDir string) (error,[]string,[]string,string){
 	return nil,options,doptions,archiveDir
 }
 
-func AptUpdate(options []string,command Command) error {
+func AptUpdate(s *Supplier,options []string) error {
 	uargs := append(options, "update")	
 	var errBuff bytes.Buffer
-	if err := command.Execute("/", &errBuff, &errBuff, "apt-get", uargs...); err != nil {
+	if err := s.Command.Execute("/", &errBuff, &errBuff, "apt-get", uargs...); err != nil {
 		return fmt.Errorf("failed to apt-get update %s\n\n%s", errBuff.String(), err)
 	}
 	return nil;
 }
 
-func InstallPackages(archiveDir string,installDir string,command Command) error{
+func InstallPackages(s *Supplier,archiveDir string,installDir string) error{
 	files, err := filepath.Glob(filepath.Join(archiveDir, "*.deb"))
 	if err != nil {
 		return err
 	}
 	for _, file := range files {
-		output, err := command.Output("/", "dpkg", "-x", file, installDir)
+		output, err := s.Command.Output("/", "dpkg", "-x", file, installDir)
 	if err != nil {
 		return fmt.Errorf("failed to install pkg %s\n\n%s\n\n%s", file, output, err.Error())
 	}
@@ -108,7 +108,7 @@ func InstallPackages(archiveDir string,installDir string,command Command) error{
 	return nil;
 }
 
-func LinkPackages(installDir string,stager Stager) error {
+func LinkPackages(s *Supplier,installDir string) error {
 	for _, dirs := range [][]string{
 		{"usr/bin", "bin"},
 		{"usr/lib", "lib"},
@@ -121,7 +121,7 @@ func LinkPackages(installDir string,stager Stager) error {
 		if exists, err := libbuildpack.FileExists(dest); err != nil {
 			return err
 		} else if exists {
-			if err := stager.LinkDirectoryInDepDir(dest, dirs[1]); err != nil {
+			if err := s.Stager.LinkDirectoryInDepDir(dest, dirs[1]); err != nil {
 				return err
 			}
 		}
@@ -139,7 +139,7 @@ func LinkPackages(installDir string,stager Stager) error {
 				if err != nil {
 					return err
 				}
-			destDir := filepath.Join(stager.DepDir(), dirs[1])
+			destDir := filepath.Join(s.Stager.DepDir(), dirs[1])
 			if err := os.MkdirAll(destDir, 0755); err != nil {
 				return err
 			}
@@ -160,7 +160,7 @@ func LinkPackages(installDir string,stager Stager) error {
 	return nil;
 }
 
-func InstallDir(s Stager,pkg string)string{
-	installDir := filepath.Join(s.DepDir(),aptname,pkg)
+func InstallDir(s *Supplier,pkg string)string{
+	installDir := filepath.Join(s.Stager.DepDir(),aptname,pkg)
 	return installDir
 }

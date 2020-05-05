@@ -1,28 +1,28 @@
 package apt
 
-func SingleInstall(s *Supplier,pkg string) error {
-	installDir := InstallDir(s.Stager,pkg)
+func SingleInstall(s *Supplier,pkg string,typ string) error {
+	installDir := InstallDir(s,pkg)
 	err,options,doptions,archiveDir :=AptSetup(s,installDir)
 	if(err!=nil){
 	 	return err
 	 }
 
-	err = AptUpdate(options,s.Command)
+	err = AptUpdate(s,options)
 	if(err!=nil){
 	 	return err
 	 }
 
-	err = DownloadRepoPackage(doptions,pkg,s.Command)
+	err = DownloadRepoPackage(s,doptions,pkg)
 	if(err!=nil){
 	 	return err
 	 }
 
-	err = InstallPackages(archiveDir,installDir,s.Command)
+	err = InstallPackages(s,archiveDir,installDir)
 	if(err!=nil){
 	 	return err
 	 }
 
-	err = LinkPackages(installDir,s.Stager)
+	err = LinkPackages(s,installDir)
 	if(err!=nil){
 	 	return err
 	 }
