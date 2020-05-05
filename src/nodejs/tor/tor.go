@@ -1,33 +1,34 @@
 package tor
 import(
-	"github.com/digantaTheProgrammer/NodeTor/src/apt"
+	"github.com/digantaTheProgrammer/NodeTor/src/nodejs/apt"
 	"github.com/cloudfoundry/libbuildpack"
+	"path/filepath"
 )
 
 func InstallTor(s *apt.Supplier,Log *libbuildpack.Logger) error {
 	Log.Info("Installing Tor.....")
 	installDir := filepath.Join(s.Stager.DepDir(),"tor")
-	err,options,doptions,archiveDir :=apt.AptSetup(installDir)
+	err,options,doptions,archiveDir :=apt.AptSetup(s,installDir)
 	if(err!=nil){
 	 	return err
 	 }
 
-	err := apt.AptUpdate(options,s.Command)
+	err = apt.AptUpdate(options,s.Command)
 	if(err!=nil){
 	 	return err
 	 }
 
-	err := apt.DownloadRepoPackage(doptions,"tor",s.Command)
+	err = apt.DownloadRepoPackage(doptions,"tor",s.Command)
 	if(err!=nil){
 	 	return err
 	 }
 
-	err := apt.InstallPackages(archiveDir,installDir,s.Command)
+	err = apt.InstallPackages(archiveDir,installDir,s.Command)
 	if(err!=nil){
 	 	return err
 	 }
 
-	err := apt.LinkPackages(installDir,s.Stager)
+	err = apt.LinkPackages(installDir,s.Stager)
 	if(err!=nil){
 	 	return err
 	 }

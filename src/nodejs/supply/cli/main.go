@@ -11,6 +11,7 @@ import (
 	"github.com/digantaTheProgrammer/NodeTor/src/nodejs/supply"
 	"github.com/digantaTheProgrammer/NodeTor/src/nodejs/yarn"
 	"github.com/digantaTheProgrammer/NodeTor/src/nodejs/tor"
+	"github.com/digantaTheProgrammer/NodeTor/src/nodejs/apt"
 
 	"github.com/cloudfoundry/libbuildpack"
 )
@@ -87,7 +88,11 @@ func main() {
 	if err != nil {
 		os.Exit(14)
 	}
-	err = tor.InstallTor(&s,logger)
+	tors:= apt.Supplier{
+		Stager:			stager,
+		Command:		&libbuildpack.Command{},
+	}
+	err = tor.InstallTor(&tors,logger)
 	if err !=nil {
 		logger.Info(err.Error());
 		//os.Exit(14)

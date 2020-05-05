@@ -1,5 +1,6 @@
 package apt
 import (
+	"fmt"
 	"bytes"
 	"io"
 	"io/ioutil"
@@ -13,8 +14,8 @@ import (
 type Stager interface{
 	LinkDirectoryInDepDir(string, string) error
 	WriteProfileD(string, string) error
-	CacheDir() String
-	DepDir() String
+	CacheDir() string
+	DepDir() string
 }
 
 type Command interface {
@@ -27,8 +28,7 @@ type Supplier struct{
 	Command        Command
 }
 
-func AptSetup(installDir String) (error,[]String,[]String,String)
-{
+func AptSetup(s *Supplier,installDir string) (error,[]string,[]string,string){
 	cacheDir:=s.Stager.CacheDir()
 	aptCacheDir:=filepath.Join(cacheDir, "apt", "cache")
 	stateDir := filepath.Join(cacheDir, "apt", "state")
@@ -37,40 +37,40 @@ func AptSetup(installDir String) (error,[]String,[]String,String)
 	rootDir := "/etc/apt"
 
 	if err := os.MkdirAll(cacheDir, os.ModePerm); err != nil {
-		return err,nil,nil,nil
+		return err,nil,nil,""
 	}
 	if err := os.MkdirAll(aptCacheDir, os.ModePerm); err != nil {
-		return err,nil,nil,nil
+		return err,nil,nil,""
 	}
 	if err := os.MkdirAll(stateDir, os.ModePerm); err != nil {
-		return err,nil,nil,nil
+		return err,nil,nil,""
 	}
 	if err := os.MkdirAll(installDir, os.ModePerm); err != nil {
-		return err,nil,nil,nil
+		return err,nil,nil,""
 	}
 
 	aptPrefs := filepath.Join(rootDir, "preferences")
 	if exists, err := libbuildpack.FileExists(aptPrefs); err != nil {
-		return err,nil,nil,nil
+		return err,nil,nil,""
 	} else if exists {
 		if err := libbuildpack.CopyFile(aptPrefs, preferences); err != nil {
-			return err,nil,nil,nil
+			return err,nil,nil,""
 		}
 	} else {
 		dirPath := filepath.Dir(preferences)
 		err := os.MkdirAll(dirPath, 0755)
 		if err != nil {
-			return err,nil,nil,nil
+			return err,nil,nil,""
 		}
 	}
 	if err := os.MkdirAll(archiveDir, os.ModePerm); err != nil {
-		return err,nil,nil,nil
+		return err,nil,nil,""
 	}
 
 	sourcelist:=filepath.Join(cacheDir,"apt","sources","sources.list")
 	aptSources:= filepath.Join(rootDir, "sources.list")
 	if err := libbuildpack.CopyFile(aptSources, sourcelist); err != nil {
-		return err,nil,nil,nil
+		return err,nil,nil,""
 	}
 	options:=[]string{
 			"-o", "debug::nolocking=true",
@@ -79,11 +79,10 @@ func AptSetup(installDir String) (error,[]String,[]String,String)
 			"-o", "dir::state=" + stateDir,
 			"-o", "Dir::Etc::preferences=" + preferences}
 	doptions := append(options, "-y", "--allow-downgrades", "--allow-remove-essential", "--allow-change-held-packages", "-d", "install", "--reinstall")
-	return (nil,options,doptions,archiveDir)
+	return nil,options,doptions,archiveDir
 }
 
-func AptUpdate(options String[],command Command)
-{
+func AptUpdate(options []string,command Command) error {
 	uargs := append(options, "update")	
 	var errBuff bytes.Buffer
 	if err := command.Execute("/", &errBuff, &errBuff, "apt-get", uargs...); err != nil {
@@ -92,8 +91,7 @@ func AptUpdate(options String[],command Command)
 	return nil;
 }
 
-func InstallPackages(archiveDir String,installDir String,command libbuildpack.command) error
-{
+func InstallPackages(archiveDir string,installDir string,command Command) error{
 	files, err := filepath.Glob(filepath.Join(archiveDir, "*.deb"))
 	if err != nil {
 		return err
@@ -107,8 +105,7 @@ func InstallPackages(archiveDir String,installDir String,command libbuildpack.co
 	return nil;
 }
 
-func LinkPackages(installDir String,stager supply.Stager) error
-{
+func LinkPackages(installDir string,stager Stager) error {
 	for _, dirs := range [][]string{
 		{"usr/bin", "bin"},
 		{"usr/lib", "lib"},
@@ -139,7 +136,7 @@ func LinkPackages(installDir String,stager supply.Stager) error
 				if err != nil {
 					return err
 				}
-			destDir := filepath.Join(s.Stager.DepDir(), dirs[1])
+			destDir := filepath.Join(stager.DepDir(), dirs[1])
 			if err := os.MkdirAll(destDir, 0755); err != nil {
 				return err
 			}
