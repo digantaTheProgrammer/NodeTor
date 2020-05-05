@@ -29,6 +29,8 @@ type Command interface {
 type Supplier struct{
 	Stager         Stager
 	Command        Command
+	Setup 			bool
+	Update 			bool
 }
 
 func AptSetup(s *Supplier,installDir string) (error,[]string,[]string,string){
@@ -37,60 +39,66 @@ func AptSetup(s *Supplier,installDir string) (error,[]string,[]string,string){
 	stateDir := filepath.Join(cacheDir, "apt", "state")
 	preferences := filepath.Join(cacheDir, "apt", "etc", "preferences")
 	archiveDir :=filepath.Join(aptCacheDir, "archives")
-	rootDir := "/etc/apt"
-
-	if err := os.MkdirAll(cacheDir, os.ModePerm); err != nil {
-		return err,nil,nil,""
-	}
-	if err := os.MkdirAll(aptCacheDir, os.ModePerm); err != nil {
-		return err,nil,nil,""
-	}
-	if err := os.MkdirAll(stateDir, os.ModePerm); err != nil {
-		return err,nil,nil,""
-	}
-	if err := os.MkdirAll(installDir, os.ModePerm); err != nil {
-		return err,nil,nil,""
-	}
-
-	aptPrefs := filepath.Join(rootDir, "preferences")
-	if exists, err := libbuildpack.FileExists(aptPrefs); err != nil {
-		return err,nil,nil,""
-	} else if exists {
-		if err := libbuildpack.CopyFile(aptPrefs, preferences); err != nil {
-			return err,nil,nil,""
-		}
-	} else {
-		dirPath := filepath.Dir(preferences)
-		err := os.MkdirAll(dirPath, 0755)
-		if err != nil {
-			return err,nil,nil,""
-		}
-	}
-	if err := os.MkdirAll(archiveDir, os.ModePerm); err != nil {
-		return err,nil,nil,""
-	}
-
 	sourcelist:=filepath.Join(cacheDir,"apt","sources","sources.list")
 	aptSources:= filepath.Join(rootDir, "sources.list")
-	if err := libbuildpack.CopyFile(aptSources, sourcelist); err != nil {
-		return err,nil,nil,""
-	}
+	rootDir := "/etc/apt"
 	options:=[]string{
 			"-o", "debug::nolocking=true",
 			"-o", "dir::cache=" + aptCacheDir,
 			"-o", "dir::etc::sourcelist=" + sourcelist,
 			"-o", "dir::state=" + stateDir,
 			"-o", "Dir::Etc::preferences=" + preferences}
+
 	doptions := append(options, "-y", "--allow-downgrades", "--allow-remove-essential", "--allow-change-held-packages", "-d", "install", "--reinstall")
+
+	if (s.Setup == true){
+		if err := os.MkdirAll(cacheDir, os.ModePerm); err != nil {
+			return err,nil,nil,""
+		}
+		if err := os.MkdirAll(aptCacheDir, os.ModePerm); err != nil {
+			return err,nil,nil,""
+		}
+		if err := os.MkdirAll(stateDir, os.ModePerm); err != nil {
+			return err,nil,nil,""
+		}
+		if err := os.MkdirAll(installDir, os.ModePerm); err != nil {
+			return err,nil,nil,""
+		}
+		if err := os.MkdirAll(archiveDir, os.ModePerm); err != nil {
+			return err,nil,nil,""
+		}
+		aptPrefs := filepath.Join(rootDir, "preferences")
+		if exists, err := libbuildpack.FileExists(aptPrefs); err != nil {
+			return err,nil,nil,""
+		} else if exists {
+			if err := libbuildpack.CopyFile(aptPrefs, preferences); err != nil {
+				return err,nil,nil,""
+			}
+		} else {
+			dirPath := filepath.Dir(preferences)
+			err := os.MkdirAll(dirPath, 0755)
+			if err != nil {
+				return err,nil,nil,""
+			}
+		}
+		if err := libbuildpack.CopyFile(aptSources, sourcelist); err != nil {
+			return err,nil,nil,""
+		}
+	}
+	s.Setup=true
 	return nil,options,doptions,archiveDir
 }
 
 func AptUpdate(s *Supplier,options []string) error {
+	if(s.Update==true){
+		return nil
+	}
 	uargs := append(options, "update")	
 	var errBuff bytes.Buffer
 	if err := s.Command.Execute("/", &errBuff, &errBuff, "apt-get", uargs...); err != nil {
 		return fmt.Errorf("failed to apt-get update %s\n\n%s", errBuff.String(), err)
 	}
+	s.Update=true
 	return nil;
 }
 
