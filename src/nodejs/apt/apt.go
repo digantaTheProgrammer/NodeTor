@@ -51,7 +51,7 @@ func AptSetup(s *Supplier,installDir string) (error,[]string,[]string,string){
 
 	doptions := append(options, "-y", "--allow-downgrades", "--allow-remove-essential", "--allow-change-held-packages", "-d", "install", "--reinstall")
 
-	if (s.Setup == true){
+	if (s.Setup == false){
 		if err := os.MkdirAll(cacheDir, os.ModePerm); err != nil {
 			return err,nil,nil,""
 		}
