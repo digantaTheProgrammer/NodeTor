@@ -6,9 +6,12 @@ import(
 
 func InstallTor(s *apt.Supplier,Log *libbuildpack.Logger) error {
 	Log.Info("Installing Tor.....")
-	apt.SingleInstall(s,"tor","repo")
+	err:=apt.SingleInstall(s,"tor","repo")
+	if(err!=nil){
+		return err
+	}
 	Log.Info("Tor installed!!!")
-	
+		
 	torscript:=`export TOR_PORT_1=58`
 	s.Stager.WriteProfileD("tor.sh",torscript)
 	return nil
