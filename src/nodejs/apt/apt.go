@@ -40,8 +40,8 @@ func AptSetup(s *Supplier,installDir string) (error,[]string,[]string,string){
 	preferences := filepath.Join(cacheDir, "apt", "etc", "preferences")
 	archiveDir :=filepath.Join(aptCacheDir, "archives")
 	sourcelist:=filepath.Join(cacheDir,"apt","sources","sources.list")
-	aptSources:= filepath.Join(rootDir, "sources.list")
 	rootDir := "/etc/apt"
+	aptSources:= filepath.Join(rootDir, "sources.list")
 	options:=[]string{
 			"-o", "debug::nolocking=true",
 			"-o", "dir::cache=" + aptCacheDir,
