@@ -160,7 +160,7 @@ func LinkPackages(installDir string,stager Stager) error {
 	return nil;
 }
 
-func InstallDir(s Stager,string pkg)string{
-	installDir := filepath.Join(s.Stager.DepDir(),aptname,pkg)
+func InstallDir(s Stager,pkg string)string{
+	installDir := filepath.Join(s.DepDir(),aptname,pkg)
 	return installDir
 }

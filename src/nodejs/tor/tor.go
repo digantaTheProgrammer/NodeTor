@@ -2,7 +2,6 @@ package tor
 import(
 	"github.com/digantaTheProgrammer/NodeTor/src/nodejs/apt"
 	"github.com/cloudfoundry/libbuildpack"
-	"path/filepath"
 )
 
 func InstallTor(s *apt.Supplier,Log *libbuildpack.Logger) error {
