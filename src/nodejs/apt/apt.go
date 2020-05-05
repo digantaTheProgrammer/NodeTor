@@ -11,6 +11,9 @@ import (
 	"github.com/cloudfoundry/libbuildpack"
 )
 
+const(
+	aptname = "apt"
+)
 type Stager interface{
 	LinkDirectoryInDepDir(string, string) error
 	WriteProfileD(string, string) error
@@ -155,4 +158,9 @@ func LinkPackages(installDir string,stager Stager) error {
 		}
 	}
 	return nil;
+}
+
+func InstallDir(s Stager,string pkg)string{
+	installDir := filepath.Join(s.Stager.DepDir(),aptname,pkg)
+	return installDir
 }
