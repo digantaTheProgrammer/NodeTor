@@ -1,6 +1,6 @@
 package tor
 import(
-	"github.com/digantaTheProgrammer/NodeTor/src/nodejs/apt"
+	"github.com/chocolategames/cloudfoundry/apt"
 	"github.com/cloudfoundry/libbuildpack"
 )
 
